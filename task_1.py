@@ -17,3 +17,36 @@
 
 # Код виконується і повертає максимальну можливу загальну кількість вироблених продуктів "Лимонад" та "Фруктовий сік", 
 # враховуючи обмеження на кількість ресурсів.
+
+import pulp
+
+# Створюємо модель
+model = pulp.LpProblem("Maximization_of_production", pulp.LpMaximize)
+
+# Змінні для кількості виробленого лимонаду і фруктового соку
+lemonade = pulp.LpVariable('Lemonade', lowBound=0, cat='Integer')
+fruit_juice = pulp.LpVariable('FruitJuice', lowBound=0, cat='Integer')
+
+# Обмеження на ресурси
+water_constraint = 2 * lemonade + 1 * fruit_juice <= 100  # Вода
+sugar_constraint = 1 * lemonade <= 50  # Цукор
+lemon_juice_constraint = 1 * lemonade <= 30  # Лимонний сік
+fruit_puree_constraint = 2 * fruit_juice <= 40  # Фруктове пюре
+
+# Додаємо обмеження до моделі
+model += water_constraint
+model += sugar_constraint
+model += lemon_juice_constraint
+model += fruit_puree_constraint
+
+# Функція мети: максимізувати сумарну кількість продуктів
+model += lemonade + fruit_juice, "Total_Products"
+
+# Розв'язуємо задачу
+model.solve()
+
+# Виведення результатів
+print(f"Статус: {pulp.LpStatus[model.status]}")
+print(f"Кількість виробленого лимонаду: {lemonade.varValue}")
+print(f"Кількість виробленого фруктового соку: {fruit_juice.varValue}")
+print(f"Загальна кількість продуктів: {pulp.value(model.objective)}")
